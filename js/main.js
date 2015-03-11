@@ -208,7 +208,6 @@ function initPhysics(){
         var q = new CANNON.Quaternion();
         q.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI / 2);
         wheelBody.addShape(cylinderShape, new CANNON.Vec3(), q);
-        wheelBody.angularDamping = 0.1;
         wheelBodies.push(wheelBody);
         scene.add(createMesh(wheelBody));
         updateBodies.push(wheelBody);
@@ -234,7 +233,7 @@ function initPhysics(){
         for (var j = 0; j < sizeY; j++) {
             var height = Math.cos(i / sizeX * Math.PI * 5) * Math.cos(j/sizeY * Math.PI * 5) * 4 + 4;
             if(i===0 || i === sizeX-1 || j===0 || j === sizeY-1)
-                height = 6;
+                height = 8;
             matrix[i].push(height);
         }
     }
@@ -352,11 +351,19 @@ $(document).ready(function() {
             case 32: 
                 vehicle.chassisBody.position.z = 10;
                 vehicle.chassisBody.velocity.set(0,0,0);
+                vehicle.chassisBody.angularVelocity.set(0,0,0);
+                vehicle.chassisBody.quaternion.y = 0;
+                vehicle.chassisBody.quaternion.x = 0;
+                vehicle.chassisBody.quaternion.z = 0;
                 break;
 
             case 82: 
                 vehicle.chassisBody.position.set(0,0,5);
                 vehicle.chassisBody.velocity.set(0,0,0);
+                vehicle.chassisBody.angularVelocity.set(0,0,0);
+                vehicle.chassisBody.quaternion.y = 0;
+                vehicle.chassisBody.quaternion.x = 0;
+                vehicle.chassisBody.quaternion.z = 0;
                 break;
         }
     }
