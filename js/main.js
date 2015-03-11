@@ -54,7 +54,7 @@ function init(){
 
     // SCENE
     scene = new THREE.Scene();
-    scene.fog = new THREE.Fog( 0x222222, 1000, cameraSettings.far );
+    scene.fog = new THREE.Fog( 0x222222, 100, 500 );
     
     // Camera
     camera = new THREE.PerspectiveCamera(24, window.innerWidth / window.innerHeight, cameraSettings.near, cameraSettings.far);
@@ -192,10 +192,10 @@ function initPhysics(){
     options.chassisConnectionPointLocal.set(1.3, -1.2, 0);
     vehicle.addWheel(options);
 
-    options.chassisConnectionPointLocal.set(-1.3, 1.2, 0);
+    options.chassisConnectionPointLocal.set(-1.4, 1.2, 0);
     vehicle.addWheel(options);
 
-    options.chassisConnectionPointLocal.set(-1.3, -1.2, 0);
+    options.chassisConnectionPointLocal.set(-1.4, -1.2, 0);
     vehicle.addWheel(options);
 
     vehicle.addToWorld(world);
@@ -204,7 +204,7 @@ function initPhysics(){
     for(var i=0; i<vehicle.wheelInfos.length; i++){
         var wheel = vehicle.wheelInfos[i];
         var cylinderShape = new CANNON.Cylinder(wheel.radius, wheel.radius, wheel.radius / 2, 20);
-        var wheelBody = new CANNON.Body({ mass: 20 });
+        var wheelBody = new CANNON.Body({ mass: 40 });
         var q = new CANNON.Quaternion();
         q.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI / 2);
         wheelBody.addShape(cylinderShape, new CANNON.Vec3(), q);
