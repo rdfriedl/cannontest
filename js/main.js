@@ -44,7 +44,8 @@ settings = {
     maxSubSteps:3
 },
 lastCallTime,
-updateBodies = [];
+updateBodies = [],
+wheelBodies;
 
 function init(){
 
@@ -134,7 +135,8 @@ function initPhysics(){
 
     world.broadphase = new CANNON.SAPBroadphase(world);
     world.gravity.set(0, 0, -9.81);
-    world.defaultContactMaterial.friction = 0;
+    world.solver = new CANNON.SplitSolver(world.solver);
+    // world.defaultContactMaterial.friction = 0;
 
     groundMaterial = new CANNON.Material("groundMaterial");
     wheelMaterial = new CANNON.Material("wheelMaterial");
@@ -157,7 +159,7 @@ function initPhysics(){
     world.addContactMaterial(chassisContactMaterial);
 
     var chassisShape = new CANNON.Box(new CANNON.Vec3(2, 1,0.5));
-    var chassisBody = new CANNON.Body({mass: 300});
+    var chassisBody = new CANNON.Body({mass: 400});
     chassisBody.addShape(chassisShape);
     chassisBody.position.set(0, 0, 4);
     chassisBody.angularVelocity.set(0, 0, 0.5);
@@ -167,8 +169,8 @@ function initPhysics(){
     var options = {
         radius: 0.8,
         directionLocal: new CANNON.Vec3(0, 0, -1),
-        suspensionStiffness: 15,
-        suspensionRestLength: 0.5,
+        suspensionStiffness: 20,
+        suspensionRestLength: 0.7,
         frictionSlip: 3,
         dampingRelaxation: 2.3,
         dampingCompression: 4.4,
@@ -176,7 +178,7 @@ function initPhysics(){
         rollInfluence:  0.01,
         axleLocal: new CANNON.Vec3(0, 1, 0),
         chassisConnectionPointLocal: new CANNON.Vec3(1, 1, 0),
-        maxSuspensionTravel: 0.5,
+        maxSuspensionTravel: 1,
         customSlidingRotationalSpeed: -30,
         useCustomSlidingRotationalSpeed: true
     };
@@ -186,21 +188,21 @@ function initPhysics(){
         chassisBody: chassisBody,
     });
 
-    options.chassisConnectionPointLocal.set(1.3, 1.2, 0);
+    options.chassisConnectionPointLocal.set(1.4, 1.2, 0);
     vehicle.addWheel(options);
 
-    options.chassisConnectionPointLocal.set(1.3, -1.2, 0);
+    options.chassisConnectionPointLocal.set(1.4, -1.2, 0);
     vehicle.addWheel(options);
 
     options.chassisConnectionPointLocal.set(-1.4, 1.2, 0);
     vehicle.addWheel(options);
 
-    options.chassisConnectionPointLocal.set(-1.4, -1.2, 0);
+    options.chassisConnectionPointLocal.set(-1.5, -1.2, 0);
     vehicle.addWheel(options);
 
     vehicle.addToWorld(world);
 
-    var wheelBodies = [];
+    wheelBodies = [];
     for(var i=0; i<vehicle.wheelInfos.length; i++){
         var wheel = vehicle.wheelInfos[i];
         var cylinderShape = new CANNON.Cylinder(wheel.radius, wheel.radius, wheel.radius / 2, 20);
@@ -248,6 +250,30 @@ function initPhysics(){
     createMesh(ground);
     ground.mesh.position.copy(ground.position);
     scene.add(ground.mesh);
+
+    //create cubes
+    var size = 1;
+    var numberOfThings = 20;
+    var shape = new CANNON.Box(new CANNON.Vec3(size,size,size));
+    for (var i = 0; i < numberOfThings; i++) {
+        var cube = new CANNON.Body({ mass: 30 });
+        cube.addShape(shape);
+        cube.position.set(Math.random() * 200 - 100,Math.random() * 200 - 100,20);
+        world.add(cube);
+        updateBodies.push(cube);
+        scene.add(createMesh(cube));
+    };
+    var size = 1;
+    var numberOfThings = 20;
+    var shape = new CANNON.Sphere(size);
+    for (var i = 0; i < numberOfThings; i++) {
+        var cube = new CANNON.Body({ mass: 30 });
+        cube.addShape(shape);
+        cube.position.set(Math.random() * 200 - 100,Math.random() * 200 - 100,20);
+        world.add(cube);
+        updateBodies.push(cube);
+        scene.add(createMesh(cube));
+    };
 };
 
 function update(time){
@@ -374,76 +400,6 @@ $(document).ready(function() {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
     })
-
-    //pointer lock
-    // var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
-    // if (havePointerLock) {
-    //     var element = document.body;
-
-    //     var pointerlockchange = function ( event ) {
-    //         if (document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element ) {
-    //             controls.enabled = true;
-
-    //             $('#blocker').hide();
-    //         } 
-    //         else {
-    //             controls.enabled = false;
-
-    //             $('#blocker').css('display','-webkit-box');
-    //             $('#blocker').css('display','-moz-box');
-    //             $('#blocker').css('display','box');
-
-    //             $('#instructions').show();
-    //         }
-    //     }
-
-    //     var pointerlockerror = function ( event ) {
-    //         $('#instructions').show();
-    //     }
-
-    //     $('#instructions').click(function(event){
-    //         $('#instructions').hide();
-
-    //         // Ask the browser to lock the pointer
-    //         element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
-
-    //         if ( /Firefox/i.test( navigator.userAgent ) ) {
-    //             var fullscreenchange = function ( event ) {
-
-    //                 if ( document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element ) {
-
-    //                     document.removeEventListener( 'fullscreenchange', fullscreenchange );
-    //                     document.removeEventListener( 'mozfullscreenchange', fullscreenchange );
-
-    //                     element.requestPointerLock();
-    //                 }
-
-    //             }
-
-    //             document.addEventListener( 'fullscreenchange', fullscreenchange, false );
-    //             document.addEventListener( 'mozfullscreenchange', fullscreenchange, false );
-
-    //             element.requestFullscreen = element.requestFullscreen || element.mozRequestFullscreen || element.mozRequestFullScreen || element.webkitRequestFullscreen;
-
-    //             element.requestFullscreen();
-    //         } 
-    //         else {
-    //             element.requestPointerLock();
-    //         }
-    //     });
-
-    //     // Hook pointer lock state change events
-    //     document.addEventListener( 'pointerlockchange', pointerlockchange, false );
-    //     document.addEventListener( 'mozpointerlockchange', pointerlockchange, false );
-    //     document.addEventListener( 'webkitpointerlockchange', pointerlockchange, false );
-
-    //     document.addEventListener( 'pointerlockerror', pointerlockerror, false );
-    //     document.addEventListener( 'mozpointerlockerror', pointerlockerror, false );
-    //     document.addEventListener( 'webkitpointerlockerror', pointerlockerror, false );
-    // } 
-    // else {
-    //     $('#instructions').innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
-    // }
 });
 
 shape2mesh = function(body){
